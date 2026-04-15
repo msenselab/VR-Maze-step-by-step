@@ -1,0 +1,5 @@
+ursina>=7.0.0
+pyserial
+pillow
+pygame
+LabJackPython

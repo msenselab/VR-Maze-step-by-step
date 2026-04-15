@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip show *)",
+      "Bash(pip list *)",
+      "Bash(pip install *)",
+      "Bash(cp \"D:/MazeWalker-Py/pywalker/maz_parser.py\" \"D:/VR-Maze-step-by-step/pywalker/maz_parser.py\")",
+      "Bash(cp \"D:/MazeWalker-Py/pywalker/maze_renderer.py\" \"D:/VR-Maze-step-by-step/pywalker/maze_renderer.py\")",
+      "Bash(cp \"D:/MazeWalker-Py/pywalker/plot_trajectory.py\" \"D:/VR-Maze-step-by-step/pywalker/plot_trajectory.py\")",
+      "Bash(cp \"D:/MazeWalker-Py/pywalker/trigger_debug.py\" \"D:/VR-Maze-step-by-step/pywalker/trigger_debug.py\")",
+      "Bash(mkdir -p \"D:/VR-Maze-step-by-step/pywalker/models_compressed\")",
+      "Bash(uv --version)",
+      "Bash(uv venv *)",
+      "Bash(uv pip *)"
+    ]
+  }
+}
