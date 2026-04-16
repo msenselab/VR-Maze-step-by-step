@@ -12,7 +12,7 @@ Template: D:/vr-tutorial/maze_explorer/maze_explorer.py
 """
 
 from ursina import (
-    Entity, Vec3 as UVec3, color, camera, application, load_model, load_texture,
+    Entity, Vec3 as UVec3, Mesh, color, camera, application, load_model, load_texture,
     held_keys, Text, invoke, destroy, mouse, AmbientLight, DirectionalLight,
 )
 from ursina.prefabs.first_person_controller import FirstPersonController
@@ -123,6 +123,37 @@ def load_obj_model(model_path: Path):
         return None, 1.0, 0.0
 
 
+def build_curved_wall(cw, texture, wall_color):
+    """Create an Entity for a CurvedWall using its geometry vertices and triangle indices."""
+    if not cw.geometry_verts or not cw.indices:
+        return
+
+    verts = [UVec3(v.x, v.y, v.z) for v in cw.geometry_verts]
+    uvs = cw.geometry_uvs if cw.geometry_uvs else None
+
+    if texture is not None:
+        col = color.white
+    else:
+        col = color.rgb(
+            int(wall_color.r * 180),
+            int(wall_color.g * 200),
+            int(wall_color.b * 160),
+        )
+
+    # Front face
+    mesh = Mesh(vertices=verts, uvs=uvs, triangles=cw.indices, mode='triangle')
+    e = _track(Entity(model=mesh, texture=texture, color=col, collider='mesh'))
+    e.collider = 'mesh'
+
+    # Back face (reverse winding for double-sided rendering)
+    back_tris = []
+    for i in range(0, len(cw.indices), 3):
+        if i + 2 < len(cw.indices):
+            back_tris.extend([cw.indices[i], cw.indices[i+2], cw.indices[i+1]])
+    mesh_back = Mesh(vertices=verts, uvs=uvs, triangles=back_tris, mode='triangle')
+    _track(Entity(model=mesh_back, texture=texture, color=col))
+
+
 def build_maze_scene(maze_data: MazeData):
     """Build all Ursina entities from parsed maze data. Returns (player, collectibles)."""
 
@@ -184,7 +215,15 @@ def build_maze_scene(maze_data: MazeData):
         ))
         wall_count += 1
 
-    print(f"Built {wall_count} walls")
+    # --- Curved walls (boundary arcs) ---
+    curved_count = 0
+    for cw in maze_data.curved_walls:
+        if cw.visible:
+            tex = textures.get(cw.texture_id) or _wall_tex
+            build_curved_wall(cw, tex, cw.color)
+            curved_count += 1
+
+    print(f"Built {wall_count} walls + {curved_count} curved walls")
 
     # ------------------------------------------------------------------
     # Floor — quad with texture_scale for correct tiling
